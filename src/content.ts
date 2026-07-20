@@ -103,16 +103,67 @@ export const recordTypeIcons: Record<RecordType, LucideIcon> = {
 };
 
 export const records: CalMenutRecord[] = [
-  { id: "electricitat", name: "Electricitat", type: "infrastructure", description: "Sistema general d’electricitat de la finca." },
-  { id: "xarxa-comunicacions", name: "Xarxa i comunicacions", type: "infrastructure", description: "Referència bàsica per a la xarxa i les comunicacions." },
-  { id: "jardi-exterior", name: "Jardí i exterior", type: "infrastructure", description: "Espai exterior i elements del jardí." },
-  { id: "caldera-greenheiss", name: "Caldera GreenHeiss", type: "equipment", description: "Equip de calefacció registrat per a consulta interna.", relatedItemIds: ["electricitat"] },
-  { id: "switch-unifi", name: "Switch UniFi", type: "equipment", description: "Equip de xarxa registrat per a consulta interna.", relatedItemIds: ["xarxa-comunicacions"] },
-  { id: "motor-porta", name: "Motor de la porta", type: "equipment", description: "Equip associat a l’accés de la finca.", relatedItemIds: ["electricitat"] },
-  { id: "quadre-electric", name: "Quadre elèctric", type: "element", description: "Element elèctric registrat com a referència.", relatedItemIds: ["electricitat"] },
-  { id: "olivera-gran", name: "Olivera gran", type: "element", description: "Element destacat del jardí.", relatedItemIds: ["jardi-exterior"] },
-  { id: "asseguranca-llar", name: "Assegurança de la llar", type: "management", description: "Referència administrativa de l’assegurança de la llar." },
-  { id: "planol-general-finca", name: "Plànol general de la finca", type: "archive-document", description: "Document de referència general de la finca." },
+  {
+    id: "electricitat",
+    name: "Electricitat",
+    type: "infrastructure",
+    description: "Sistema general d’electricitat de la finca.",
+  },
+  {
+    id: "climatitzacio",
+    name: "Climatització",
+    type: "infrastructure",
+    description: "Infraestructura relacionada amb la climatització de la casa.",
+  },
+  {
+    id: "xarxa-comunicacions",
+    name: "Xarxa i comunicacions",
+    type: "infrastructure",
+    description:
+      "Infraestructura planificada per fer servir Ethernet cablejat sempre que sigui possible, amb connectivitat exterior i connexió de xarxa a l’entrada de vehicles per al videoporter i, potencialment, altres dispositius.",
+  },
+  {
+    id: "jardi-exterior",
+    name: "Jardí i exterior",
+    type: "infrastructure",
+    description:
+      "Infraestructura del jardí i l’exterior, preparada per contenir subinfraestructures, equips i elements quan hi hagi registres reals.",
+    notes:
+      "El reg, la il·luminació exterior i un robot tallagespa poden ser elements relacionats quan es creïn registres amb informació confirmada.",
+  },
+  {
+    id: "porta-acces-vehicles",
+    name: "Porta d’accés de vehicles",
+    type: "infrastructure",
+    description:
+      "Porta d’accés de vehicles amb motor, il·luminació exterior i videoporter en aquesta ubicació.",
+    location: "Portes i accessos",
+    notes:
+      "Hi arriba un conducte soterrat d’aproximadament 50 mm de diàmetre que porta alimentació de 230 V per al motor de la porta i la il·luminació.",
+    relatedItemIds: ["electricitat", "xarxa-comunicacions"],
+  },
+  {
+    id: "caldera-greenheiss",
+    name: "Caldera GreenHeiss",
+    type: "equipment",
+    description:
+      "Caldera de pèl·lets GreenHeiss de tipus hydro, destinada a alimentar el circuit de radiadors de la casa.",
+    relatedItemIds: ["climatitzacio"],
+  },
+  {
+    id: "motor-porta",
+    name: "Motor de la porta",
+    type: "equipment",
+    description: "Motor que acciona la porta d’accés de vehicles i s’alimenta a 230 V.",
+    relatedItemIds: ["porta-acces-vehicles", "electricitat"],
+  },
+  {
+    id: "videoporter",
+    name: "Videoporter",
+    type: "equipment",
+    description: "Videoporter situat a l’entrada de vehicles.",
+    relatedItemIds: ["porta-acces-vehicles"],
+  },
 ];
 
 export const getRecordPath = (recordId: string) => `/registre/${recordId}`;
