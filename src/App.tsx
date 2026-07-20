@@ -1,67 +1,39 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { FileText, Image, MapPin, Search, X } from "lucide-react";
+import { Link, Route, Routes, useNavigate, useParams } from "react-router-dom";
 import {
-  Archive,
-  Building2,
-  FileCog,
-  House,
-  Search,
-  Wrench,
-  X,
-  type LucideIcon,
-} from "lucide-react";
-import { Link, Route, Routes, useNavigate } from "react-router-dom";
+  getRecordPath,
+  records,
+  recordsById,
+  recordTypeIcons,
+  recordTypeLabels,
+  sections,
+  type CalMenutRecord,
+  type Section,
+} from "./content";
 
-type Entry = {
+type SearchResult = {
   title: string;
   description: string;
-  emptyText: string;
   path: string;
-  icon: LucideIcon;
+  icon: Section["icon"];
   type: string;
 };
 
-const entries: Entry[] = [
-  {
-    title: "Masia",
-    description: "Informació general de la finca, l’edifici i els espais principals.",
-    emptyText: "Aquest espai queda preparat per incorporar-hi fitxes de la masia i notes de context.",
-    path: "/masia",
-    icon: House,
-    type: "Àrea",
-  },
-  {
-    title: "Infraestructures",
-    description: "Electricitat, aigua, xarxa, climatització i exterior.",
-    emptyText: "Aquest espai queda preparat per incorporar-hi informació tècnica i documentació bàsica.",
-    path: "/infraestructures",
-    icon: Building2,
-    type: "Àrea",
-  },
-  {
-    title: "Equips",
-    description: "Fitxes dels equips i dispositius instal·lats.",
-    emptyText: "Aquest espai queda preparat per incorporar-hi fitxes dels equips i dades de consulta.",
-    path: "/equips",
-    icon: Wrench,
-    type: "Àrea",
-  },
-  {
-    title: "Gestions",
-    description: "Proveïdors, contractes, assegurances i administració.",
-    emptyText: "Aquest espai queda preparat per incorporar-hi referències administratives i documents associats.",
-    path: "/gestions",
-    icon: FileCog,
-    type: "Àrea",
-  },
-  {
-    title: "Arxiu",
-    description: "Plànols, llicències, projectes i documents generals.",
-    emptyText: "Aquest espai queda preparat per incorporar-hi documents, plànols i materials de consulta.",
-    path: "/arxiu",
-    icon: Archive,
-    type: "Àrea",
-  },
-];
+function RecordCard({ record }: { record: CalMenutRecord }) {
+  const Icon = recordTypeIcons[record.type];
+
+  return (
+    <Link className="record-card" to={getRecordPath(record.id)}>
+      <span className="record-icon"><Icon size={24} strokeWidth={1.7} /></span>
+      <span>
+        <small>{recordTypeLabels[record.type]}</small>
+        <strong>{record.name}</strong>
+        {record.description ? <span className="record-summary">{record.description}</span> : null}
+      </span>
+    </Link>
+  );
+}
 
 function SearchDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [query, setQuery] = useState("");
@@ -80,15 +52,32 @@ function SearchDialog({ open, onClose }: { open: boolean; onClose: () => void })
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open, onClose]);
 
+  const searchableItems = useMemo<SearchResult[]>(() => [
+    ...sections.map((section) => ({
+      title: section.title,
+      description: section.summary,
+      path: section.path,
+      icon: section.icon,
+      type: section.type,
+    })),
+    ...records.map((record) => ({
+      title: record.name,
+      description: [record.description, record.location, record.notes].filter(Boolean).join(" "),
+      path: getRecordPath(record.id),
+      icon: recordTypeIcons[record.type],
+      type: recordTypeLabels[record.type],
+    })),
+  ], []);
+
   const results = useMemo(() => {
     const normalized = query.trim().toLocaleLowerCase("ca");
-    if (!normalized) return entries;
-    return entries.filter((entry) =>
-      `${entry.title} ${entry.description} ${entry.type}`
+    if (!normalized) return searchableItems;
+    return searchableItems.filter((item) =>
+      `${item.title} ${item.description} ${item.type}`
         .toLocaleLowerCase("ca")
         .includes(normalized),
     );
-  }, [query]);
+  }, [query, searchableItems]);
 
   if (!open) return null;
 
@@ -118,22 +107,22 @@ function SearchDialog({ open, onClose }: { open: boolean; onClose: () => void })
 
         <div className="search-results">
           {results.length ? (
-            results.map((entry) => {
-              const Icon = entry.icon;
+            results.map((result) => {
+              const Icon = result.icon;
               return (
                 <button
                   className="search-result"
-                  key={entry.path}
+                  key={result.path}
                   onClick={() => {
-                    navigate(entry.path);
+                    navigate(result.path);
                     onClose();
                   }}
                   type="button"
                 >
                   <Icon aria-hidden="true" size={20} />
                   <span>
-                    <strong>{entry.title}</strong>
-                    <small>{entry.type}</small>
+                    <strong>{result.title}</strong>
+                    <small>{result.type}</small>
                   </span>
                 </button>
               );
@@ -168,14 +157,14 @@ function HomePage() {
       </header>
 
       <section aria-label="Àrees principals" className="entry-grid">
-        {entries.map((entry) => {
-          const Icon = entry.icon;
+        {sections.map((section) => {
+          const Icon = section.icon;
           return (
-            <Link className="entry-card" key={entry.path} to={entry.path}>
+            <Link className="entry-card" key={section.path} to={section.path}>
               <span className="entry-icon"><Icon size={30} strokeWidth={1.7} /></span>
               <span>
-                <strong>{entry.title}</strong>
-                <small>{entry.description}</small>
+                <strong>{section.title}</strong>
+                <small>{section.summary}</small>
               </span>
             </Link>
           );
@@ -192,19 +181,92 @@ function HomePage() {
   );
 }
 
-function SectionPage({ entry }: { entry: Entry }) {
+function SectionPage({ section }: { section: Section }) {
+  const sectionRecords = records.filter((record) => section.recordTypes.includes(record.type));
+
   return (
     <main className="section-shell">
       <Link className="back-link" to="/">← Torna a l’inici</Link>
       <section className="section-hero">
         <p className="eyebrow">Àrea</p>
-        <h1>{entry.title}</h1>
-        <p>{entry.description}</p>
+        <h1>{section.title}</h1>
+        <p>{section.summary}</p>
       </section>
-      <section aria-label="Contingut pendent" className="empty-state">
-        <p className="eyebrow">Preparat per al futur</p>
-        <p>{entry.emptyText}</p>
-      </section>
+      {sectionRecords.length ? (
+        <section aria-label={`Registres de ${section.title}`} className="record-grid">
+          {sectionRecords.map((record) => <RecordCard key={record.id} record={record} />)}
+        </section>
+      ) : (
+        <section aria-label="Contingut pendent" className="empty-state">
+          <p className="eyebrow">Preparat per al futur</p>
+          <p>{section.emptyText}</p>
+        </section>
+      )}
+    </main>
+  );
+}
+
+function OptionalSection({ title, children }: { title: string; children?: ReactNode }) {
+  if (!children) return null;
+  return (
+    <section className="record-section">
+      <h2>{title}</h2>
+      {children}
+    </section>
+  );
+}
+
+function RecordPage() {
+  const navigate = useNavigate();
+  const { recordId } = useParams();
+  const record = recordId ? recordsById.get(recordId) : undefined;
+
+  if (!record) {
+    return (
+      <main className="section-shell">
+        <Link className="back-link" to="/">← Torna a l’inici</Link>
+        <section className="empty-state">
+          <p className="eyebrow">Registre no trobat</p>
+          <p>No s’ha trobat cap registre amb aquest enllaç.</p>
+        </section>
+      </main>
+    );
+  }
+
+  const relatedItems = record.relatedItemIds
+    ?.map((id) => recordsById.get(id))
+    .filter((item): item is CalMenutRecord => Boolean(item));
+
+  return (
+    <main className="section-shell">
+      <button className="back-link back-button" onClick={() => navigate(-1)} type="button">← Torna enrere</button>
+      <article className="record-detail">
+        <p className="eyebrow">{recordTypeLabels[record.type]}</p>
+        <h1>{record.name}</h1>
+        {record.description ? <p className="record-description">{record.description}</p> : null}
+
+        <OptionalSection title="Ubicació">
+          {record.location ? <p><MapPin aria-hidden="true" size={18} /> {record.location}</p> : undefined}
+        </OptionalSection>
+        <OptionalSection title="Fotografies">
+          {record.photographs?.length ? (
+            <ul>{record.photographs.map((photo) => <li key={photo}><Image aria-hidden="true" size={18} /> {photo}</li>)}</ul>
+          ) : undefined}
+        </OptionalSection>
+        <OptionalSection title="Documents">
+          {record.documents?.length ? (
+            <ul>{record.documents.map((document) => <li key={document.title}><FileText aria-hidden="true" size={18} /> {document.href ? <a href={document.href}>{document.title}</a> : document.title}</li>)}</ul>
+          ) : undefined}
+        </OptionalSection>
+        <OptionalSection title="Notes">
+          {record.notes ? <p>{record.notes}</p> : undefined}
+        </OptionalSection>
+        <OptionalSection title="Elements relacionats">
+          {relatedItems?.length ? (
+            <div className="related-grid">{relatedItems.map((item) => <RecordCard key={item.id} record={item} />)}</div>
+          ) : undefined}
+        </OptionalSection>
+      </article>
     </main>
   );
 }
@@ -213,9 +275,10 @@ export function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
-      {entries.map((entry) => (
-        <Route key={entry.path} path={entry.path} element={<SectionPage entry={entry} />} />
+      {sections.map((section) => (
+        <Route key={section.path} path={section.path} element={<SectionPage section={section} />} />
       ))}
+      <Route path="/registre/:recordId" element={<RecordPage />} />
       <Route path="*" element={<HomePage />} />
     </Routes>
   );
