@@ -7,6 +7,7 @@ import {
   recordsById,
   recordTypeIcons,
   recordTypeLabels,
+  decisionStatusLabels,
   sections,
   type CalMenutRecord,
   type Section,
@@ -62,7 +63,7 @@ function SearchDialog({ open, onClose }: { open: boolean; onClose: () => void })
     })),
     ...records.map((record) => ({
       title: record.name,
-      description: [record.description, record.location, record.notes].filter(Boolean).join(" "),
+      description: [record.description, record.location, record.notes, record.confirmedFacts?.join(" "), record.plannedInfrastructure?.join(" "), record.optionsUnderConsideration?.join(" "), record.finalDecisions?.join(" "), record.decisionNotes ? Object.values(record.decisionNotes).flat().join(" ") : undefined].filter(Boolean).join(" "),
       path: getRecordPath(record.id),
       icon: recordTypeIcons[record.type],
       type: recordTypeLabels[record.type],
@@ -216,6 +217,31 @@ function OptionalSection({ title, children }: { title: string; children?: ReactN
   );
 }
 
+
+function BulletList({ items }: { items?: string[] }) {
+  if (!items?.length) return null;
+  return <ul>{items.map((item) => <li key={item}>{item}</li>)}</ul>;
+}
+
+function DecisionNotesSection({ record }: { record: CalMenutRecord }) {
+  const notes = record.decisionNotes;
+  if (!notes) return null;
+
+  return (
+    <OptionalSection title="Notes de decisió">
+      <dl className="decision-notes">
+        {notes.need ? <><dt>Necessitat</dt><dd>{notes.need}</dd></> : null}
+        {notes.optionsConsidered?.length ? <><dt>Opcions considerades</dt><dd><BulletList items={notes.optionsConsidered} /></dd></> : null}
+        {notes.pros?.length ? <><dt>Pros</dt><dd><BulletList items={notes.pros} /></dd></> : null}
+        {notes.cons?.length ? <><dt>Contres</dt><dd><BulletList items={notes.cons} /></dd></> : null}
+        {notes.decisionCriteria?.length ? <><dt>Criteris de decisió</dt><dd><BulletList items={notes.decisionCriteria} /></dd></> : null}
+        {notes.provisionalConclusion ? <><dt>Conclusió provisional</dt><dd>{notes.provisionalConclusion}</dd></> : null}
+        {notes.decisionStatus ? <><dt>Estat de la decisió</dt><dd><span className={`decision-status decision-status--${notes.decisionStatus}`}>{decisionStatusLabels[notes.decisionStatus]}</span></dd></> : null}
+      </dl>
+    </OptionalSection>
+  );
+}
+
 function RecordPage() {
   const navigate = useNavigate();
   const { recordId } = useParams();
@@ -258,6 +284,19 @@ function RecordPage() {
             <ul>{record.documents.map((document) => <li key={document.title}><FileText aria-hidden="true" size={18} /> {document.href ? <a href={document.href}>{document.title}</a> : document.title}</li>)}</ul>
           ) : undefined}
         </OptionalSection>
+        <OptionalSection title="Fets existents confirmats">
+          <BulletList items={record.confirmedFacts} />
+        </OptionalSection>
+        <OptionalSection title="Infraestructura planificada">
+          <BulletList items={record.plannedInfrastructure} />
+        </OptionalSection>
+        <OptionalSection title="Opcions en estudi">
+          <BulletList items={record.optionsUnderConsideration} />
+        </OptionalSection>
+        <OptionalSection title="Decisions finals">
+          <BulletList items={record.finalDecisions} />
+        </OptionalSection>
+        <DecisionNotesSection record={record} />
         <OptionalSection title="Notes">
           {record.notes ? <p>{record.notes}</p> : undefined}
         </OptionalSection>
