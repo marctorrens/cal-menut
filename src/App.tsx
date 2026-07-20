@@ -14,6 +14,7 @@ import { Link, Route, Routes, useNavigate } from "react-router-dom";
 type Entry = {
   title: string;
   description: string;
+  emptyText: string;
   path: string;
   icon: LucideIcon;
   type: string;
@@ -22,7 +23,8 @@ type Entry = {
 const entries: Entry[] = [
   {
     title: "Masia",
-    description: "Informació general de la finca i de l’edifici.",
+    description: "Informació general de la finca, l’edifici i els espais principals.",
+    emptyText: "Aquest espai queda preparat per incorporar-hi fitxes de la masia i notes de context.",
     path: "/masia",
     icon: House,
     type: "Àrea",
@@ -30,6 +32,7 @@ const entries: Entry[] = [
   {
     title: "Infraestructures",
     description: "Electricitat, aigua, xarxa, climatització i exterior.",
+    emptyText: "Aquest espai queda preparat per incorporar-hi informació tècnica i documentació bàsica.",
     path: "/infraestructures",
     icon: Building2,
     type: "Àrea",
@@ -37,6 +40,7 @@ const entries: Entry[] = [
   {
     title: "Equips",
     description: "Fitxes dels equips i dispositius instal·lats.",
+    emptyText: "Aquest espai queda preparat per incorporar-hi fitxes dels equips i dades de consulta.",
     path: "/equips",
     icon: Wrench,
     type: "Àrea",
@@ -44,6 +48,7 @@ const entries: Entry[] = [
   {
     title: "Gestions",
     description: "Proveïdors, contractes, assegurances i administració.",
+    emptyText: "Aquest espai queda preparat per incorporar-hi referències administratives i documents associats.",
     path: "/gestions",
     icon: FileCog,
     type: "Àrea",
@@ -51,6 +56,7 @@ const entries: Entry[] = [
   {
     title: "Arxiu",
     description: "Plànols, llicències, projectes i documents generals.",
+    emptyText: "Aquest espai queda preparat per incorporar-hi documents, plànols i materials de consulta.",
     path: "/arxiu",
     icon: Archive,
     type: "Àrea",
@@ -186,13 +192,19 @@ function HomePage() {
   );
 }
 
-function PlaceholderPage({ title }: { title: string }) {
+function SectionPage({ entry }: { entry: Entry }) {
   return (
-    <main className="placeholder-page">
-      <Link className="back-link" to="/">← Cal Menut</Link>
-      <p className="eyebrow">Àrea</p>
-      <h1>{title}</h1>
-      <p>Informació pendent de documentar.</p>
+    <main className="section-shell">
+      <Link className="back-link" to="/">← Torna a l’inici</Link>
+      <section className="section-hero">
+        <p className="eyebrow">Àrea</p>
+        <h1>{entry.title}</h1>
+        <p>{entry.description}</p>
+      </section>
+      <section aria-label="Contingut pendent" className="empty-state">
+        <p className="eyebrow">Preparat per al futur</p>
+        <p>{entry.emptyText}</p>
+      </section>
     </main>
   );
 }
@@ -202,7 +214,7 @@ export function App() {
     <Routes>
       <Route path="/" element={<HomePage />} />
       {entries.map((entry) => (
-        <Route key={entry.path} path={entry.path} element={<PlaceholderPage title={entry.title} />} />
+        <Route key={entry.path} path={entry.path} element={<SectionPage entry={entry} />} />
       ))}
       <Route path="*" element={<HomePage />} />
     </Routes>
