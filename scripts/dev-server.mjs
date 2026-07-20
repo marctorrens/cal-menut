@@ -1,20 +1,19 @@
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
-import { extname, join, normalize } from 'node:path';
+import { extname, join } from 'node:path';
 
-const root = join(process.cwd(), process.argv[2] || '.');
-const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css' };
-
-createServer(async (request, response) => {
-  const pathname = new URL(request.url, 'http://localhost').pathname;
-  const target = normalize(join(root, pathname === '/' ? 'index.html' : pathname));
+const root = process.argv[2] || '.';
+const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml' };
+createServer(async (req, res) => {
   try {
-    const body = await readFile(target);
-    response.writeHead(200, { 'content-type': types[extname(target)] || 'text/plain' });
-    response.end(body);
+    const url = new URL(req.url || '/', 'http://localhost');
+    let path = url.pathname.replace(/^\/cal-menut\//, '/');
+    if (path === '/') path = '/index.html';
+    const file = await readFile(join(root, path));
+    res.writeHead(200, { 'content-type': types[extname(path)] || 'application/octet-stream' });
+    res.end(file);
   } catch {
-    const body = await readFile(join(root, 'index.html'));
-    response.writeHead(200, { 'content-type': 'text/html' });
-    response.end(body);
+    res.writeHead(404);
+    res.end('No trobat');
   }
-}).listen(4173, '0.0.0.0', () => console.log('Serving http://0.0.0.0:4173'));
+}).listen(5173, '0.0.0.0', () => console.log('http://localhost:5173/cal-menut/'));
