@@ -2,7 +2,11 @@
   "compilerOptions": {
     "target": "ES2022",
     "useDefineForClassFields": true,
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "allowJs": false,
     "skipLibCheck": true,
     "strict": true,
@@ -12,7 +16,12 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "outDir": "dist/assets",
-    "rootDir": "src"
+    "rootDir": "src",
+    "composite": true,
+    "jsx": "react-jsx",
+    "noEmit": true
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }
