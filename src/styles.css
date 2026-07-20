@@ -95,3 +95,10 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
   .record-grid, .related-grid { grid-template-columns: 1fr; }
   .record-card { min-height: auto; }
 }
+.decision-notes { margin: 0; display: grid; gap: 14px; color: #77736b; }
+.decision-notes dt { color: #191817; font-weight: 700; letter-spacing: -.01em; }
+.decision-notes dd { margin: 5px 0 0; line-height: 1.55; }
+.decision-notes ul { margin-top: 0; }
+.decision-status { display: inline-flex; width: fit-content; border-radius: 999px; padding: 5px 10px; background: #ece9e2; color: #4f4b45; font-size: 12px; font-weight: 700; }
+.decision-status--final { background: #dfeddf; color: #2f5f36; }
+.decision-status--provisional, .decision-status--under-consideration { background: #f1e5c8; color: #6a4a13; }

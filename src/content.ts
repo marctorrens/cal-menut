@@ -10,12 +10,29 @@ export type DocumentReference = {
   href?: string;
 };
 
+export type DecisionStatus = "under-consideration" | "provisional" | "final";
+
+export type DecisionNotes = {
+  need?: string;
+  optionsConsidered?: string[];
+  pros?: string[];
+  cons?: string[];
+  decisionCriteria?: string[];
+  provisionalConclusion?: string;
+  decisionStatus?: DecisionStatus;
+};
+
 export type CalMenutRecord = {
   id: string;
   name: string;
   type: RecordType;
   description?: string;
   location?: string;
+  confirmedFacts?: string[];
+  plannedInfrastructure?: string[];
+  optionsUnderConsideration?: string[];
+  finalDecisions?: string[];
+  decisionNotes?: DecisionNotes;
   notes?: string;
   photographs?: string[];
   documents?: DocumentReference[];
@@ -94,6 +111,12 @@ export const recordTypeLabels: Record<RecordType, string> = {
   "archive-document": "Document d’arxiu",
 };
 
+export const decisionStatusLabels: Record<DecisionStatus, string> = {
+  "under-consideration": "En estudi",
+  provisional: "Conclusió provisional",
+  final: "Decisió final",
+};
+
 export const recordTypeIcons: Record<RecordType, LucideIcon> = {
   infrastructure: Building2,
   equipment: Wrench,
@@ -121,6 +144,43 @@ export const records: CalMenutRecord[] = [
     type: "infrastructure",
     description:
       "Infraestructura planificada per fer servir Ethernet cablejat sempre que sigui possible, amb connectivitat exterior i connexió de xarxa a l’entrada de vehicles per al videoporter i, potencialment, altres dispositius.",
+    confirmedFacts: [
+      "La finca preveu una xarxa interior i punts de connectivitat associats a serveis tècnics.",
+      "A l’entrada de vehicles hi ha necessitat de connectivitat per al videoporter.",
+    ],
+    plannedInfrastructure: [
+      "Prioritzar cablejat Ethernet allà on el traçat sigui viable.",
+      "Portar connexió de xarxa fins a l’entrada de vehicles com a punt exterior de servei.",
+    ],
+    optionsUnderConsideration: [
+      "Ethernet cablejat fins al punt exterior.",
+      "Connexió exterior sense fil si el cablejat no és viable o no és estable.",
+      "Ús del mateix punt de xarxa per a altres dispositius exteriors futurs.",
+    ],
+    decisionNotes: {
+      need: "Definir una solució de connectivitat fiable per al videoporter i possibles dispositius exteriors sense perdre la recerca feta sobre alternatives.",
+      optionsConsidered: [
+        "Ethernet cablejat sempre que el conducte i el recorregut ho permetin.",
+        "Enllaç Wi-Fi o una altra alternativa sense fil com a pla de contingència.",
+        "Reserva d’un punt de xarxa exterior compartible amb equipament futur.",
+      ],
+      pros: [
+        "El cablejat Ethernet sol aportar més estabilitat i menys manteniment que una connexió sense fil.",
+        "Un punt exterior planificat pot reduir intervencions futures.",
+      ],
+      cons: [
+        "La viabilitat depèn del recorregut físic, el conducte disponible i les proteccions necessàries.",
+        "Compartir el punt amb dispositius futurs pot requerir alimentació, caixes o protecció addicional.",
+      ],
+      decisionCriteria: [
+        "Fiabilitat del servei del videoporter.",
+        "Viabilitat del pas de cable i manteniment posterior.",
+        "Protecció exterior i compatibilitat amb ampliacions futures.",
+      ],
+      provisionalConclusion:
+        "La hipòtesi preferent és Ethernet cablejat fins a l’entrada de vehicles, però resta pendent de validació tècnica abans de considerar-ho una solució aprovada o instal·lada.",
+      decisionStatus: "provisional",
+    },
   },
   {
     id: "jardi-exterior",
@@ -138,8 +198,19 @@ export const records: CalMenutRecord[] = [
     description:
       "Porta d’accés de vehicles amb motor, il·luminació exterior i videoporter en aquesta ubicació.",
     location: "Portes i accessos",
+    confirmedFacts: [
+      "Hi arriba un conducte soterrat d’aproximadament 50 mm de diàmetre.",
+      "El conducte porta alimentació de 230 V per al motor de la porta i la il·luminació.",
+    ],
+    plannedInfrastructure: [
+      "Valorar si el mateix accés pot admetre connectivitat de xarxa per al videoporter.",
+    ],
+    optionsUnderConsideration: [
+      "Aprofitar el recorregut existent si és tècnicament viable i segur.",
+      "Fer un recorregut separat per a dades si cal separar serveis o millorar proteccions.",
+    ],
     notes:
-      "Hi arriba un conducte soterrat d’aproximadament 50 mm de diàmetre que porta alimentació de 230 V per al motor de la porta i la il·luminació.",
+      "La connectivitat de xarxa a aquesta ubicació continua pendent de decisió tècnica; no s’ha de presentar com a instal·lada fins que es confirmi.",
     relatedItemIds: ["electricitat", "xarxa-comunicacions"],
   },
   {
