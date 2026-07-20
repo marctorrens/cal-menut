@@ -71,3 +71,27 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
   .home-footer { flex-direction: column; }
   .search-backdrop { padding-top: 24px; }
 }
+
+.back-button { border: 0; background: transparent; cursor: pointer; padding: 0; }
+.record-grid { margin-top: 56px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.record-card { min-height: 150px; padding: 22px; display: flex; gap: 18px; border-radius: 24px; border: 1px solid rgba(25,24,23,.075); background: rgba(255,255,255,.62); box-shadow: 0 16px 44px rgba(31,27,20,.045); transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease; }
+.record-card:hover { transform: translateY(-2px); background: rgba(255,255,255,.9); box-shadow: 0 20px 54px rgba(31,27,20,.07); }
+.record-icon { flex: 0 0 auto; width: 48px; height: 48px; display: grid; place-items: center; border-radius: 16px; background: #ece9e2; }
+.record-card small { display: block; margin-bottom: 7px; color: #817d75; font-size: 12px; font-weight: 650; }
+.record-card strong { display: block; font-size: 20px; letter-spacing: -.035em; }
+.record-summary { display: block; margin-top: 8px; color: #77736b; font-size: 14px; line-height: 1.45; }
+.record-detail { margin-top: 4px; }
+.record-detail h1 { margin: 0 0 20px; font-size: clamp(44px, 8vw, 82px); line-height: .96; letter-spacing: -.065em; font-weight: 680; }
+.record-description { max-width: 680px; margin: 0; color: #77736b; font-size: 18px; line-height: 1.55; }
+.record-section { margin-top: 34px; padding: 26px; border: 1px solid rgba(25,24,23,.075); border-radius: 24px; background: rgba(255,255,255,.58); box-shadow: 0 16px 44px rgba(31,27,20,.04); }
+.record-section h2 { margin: 0 0 14px; font-size: 18px; letter-spacing: -.02em; }
+.record-section p, .record-section ul { margin: 0; color: #77736b; line-height: 1.55; }
+.record-section p, .record-section li { display: flex; align-items: center; gap: 8px; }
+.record-section ul { padding: 0; list-style: none; display: grid; gap: 10px; }
+.related-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.related-grid .record-card { min-height: 130px; }
+
+@media (max-width: 700px) {
+  .record-grid, .related-grid { grid-template-columns: 1fr; }
+  .record-card { min-height: auto; }
+}
